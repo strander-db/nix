@@ -4,6 +4,7 @@
   pkgs,
   username,
   homeDirectory,
+  displayConnection,
   ...
 }:
 
@@ -16,6 +17,15 @@ let
   '';
 in
 {
+  imports = [
+    ./display-switch.nix
+  ];
+
+  services.display-switch = {
+    enable = true;
+    usbDevice = "046d:c53f";
+    onUsbConnect = displayConnection;
+  };
 
   home.username = username;
   home.homeDirectory = homeDirectory;
@@ -78,6 +88,13 @@ in
       pull.rebase = false;
       push.autoSetupRemote = true;
     };
+  };
+
+  catppuccin = {
+    enable = true;
+    autoEnable = true;
+    flavor = "mocha";
+    accent = "blue";
   };
 
   programs.fish = {

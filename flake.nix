@@ -33,6 +33,11 @@
       nixosHostname = "Dima-PC";
       darwinHomeDirectory = "/Users/${username}";
       nixosHomeDirectory = "/home/${username}";
+      systems = [
+        "aarch64-darwin"
+        "x86_64-linux"
+      ];
+      forAllSystems = f: nixpkgs.lib.genAttrs systems f;
       commonConfiguration = { pkgs, ... }: {
         nixpkgs.config.allowUnfree = true;
 
@@ -174,6 +179,18 @@
       };
     in
     {
+      packages = forAllSystems (
+        system:
+        let
+          pkgs = import nixpkgs {
+            inherit system;
+            config.allowUnfree = true;
+          };
+        in
+        {
+          display-switch = pkgs.callPackage ./pkgs/display-switch.nix { };
+        }
+      );
       darwinConfigurations.${darwinHostname} = nix-darwin.lib.darwinSystem {
         specialArgs = {
           inherit username;
@@ -184,6 +201,16 @@
           mac-app-util.darwinModules.default
           commonConfiguration
           darwinConfiguration
+          (
+            { pkgs, ... }:
+            {
+              nixpkgs.overlays = [
+                (final: prev: {
+                  display-switch = final.callPackage ./pkgs/display-switch.nix { };
+                })
+              ];
+            }
+          )
           (
             { pkgs, ... }:
             let
@@ -268,6 +295,7 @@
               inherit username;
               hostname = darwinHostname;
               homeDirectory = darwinHomeDirectory;
+              displayConnection = "DisplayPort2";
             };
 
             home-manager.users.${username} = import ./modules/home/dima.nix;
@@ -280,6 +308,9 @@
             {
               # Mac-specific home-manager configs
               home-manager.users.${username} = { pkgs, ... }: {
+                imports = [
+                  catppuccin.homeModules.catppuccin
+                ];
                 home.packages = import ./modules/home/darwin-packages.nix { inherit pkgs; } ++ [ yabai-indicator ];
                 programs.rectangle.enable = true;
                 programs.git.settings.credential.helper = "osxkeychain";
@@ -344,9 +375,16 @@
       };
 
       nixosConfigurations.${nixosHostname} = nixpkgs.lib.nixosSystem {
+        specialArgs = {
+          inherit username;
+        };
         modules = [
           commonConfiguration
           nixosConfiguration
+          ./modules/nixos/display-switch.nix
+          {
+            services.display-switch.enable = true;
+          }
           home-manager.nixosModules.default
           catppuccin.nixosModules.catppuccin
           {
@@ -359,6 +397,7 @@
               hostname = nixosHostname;
               homeDirectory = nixosHomeDirectory;
               nmrs-gui = nmrs-gui.packages.x86_64-linux.default;
+              displayConnection = "DisplayPort1";
             };
 
             home-manager.users.${username} = {
@@ -369,6 +408,16 @@
               ];
             };
           }
+          (
+            { pkgs, ... }:
+            {
+              nixpkgs.overlays = [
+                (final: prev: {
+                  display-switch = final.callPackage ./pkgs/display-switch.nix { };
+                })
+              ];
+            }
+          )
         ];
       };
     };

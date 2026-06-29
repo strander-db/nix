@@ -57,6 +57,13 @@ in
     wl-clipboard
     wl-clipboard-x11
   ];
+
+  catppuccin = {
+    cursors = {
+      enable = true;
+    };
+    gtk.icon.enable = true;
+  };
   dconf.settings = {
     "org/gnome/desktop/interface" = {
       color-scheme = "prefer-dark";
@@ -681,16 +688,7 @@ in
       </object>
     </interface>
   '';
-  catppuccin = {
-    enable = true;
-    autoEnable = true;
-    flavor = "mocha";
-    accent = "blue";
-    cursors = {
-      enable = true;
-    };
-    gtk.icon.enable = true;
-  };
+  
   home.pointerCursor = {
     gtk.enable = true;
     x11.enable = true;
