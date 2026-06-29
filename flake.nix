@@ -295,7 +295,8 @@
               inherit username;
               hostname = darwinHostname;
               homeDirectory = darwinHomeDirectory;
-              displayConnection = "DisplayPort2";
+              # L27h-4A USB-C reports as 0x31 via DDC, not DisplayPort1/2.
+              displayConnection = "0x31";
             };
 
             home-manager.users.${username} = import ./modules/home/dima.nix;
@@ -397,7 +398,8 @@
               hostname = nixosHostname;
               homeDirectory = nixosHomeDirectory;
               nmrs-gui = nmrs-gui.packages.x86_64-linux.default;
-              displayConnection = "DisplayPort1";
+              # Physical DisplayPort on L27h-4A (verify with: ddcutil getvcp 0x60).
+              displayConnection = "0x0f";
             };
 
             home-manager.users.${username} = {

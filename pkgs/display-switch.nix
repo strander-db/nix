@@ -2,6 +2,10 @@
   lib,
   stdenvNoCC,
   fetchzip,
+  libusb1,
+  makeWrapper,
+  autoPatchelfHook,
+  xorg,
 }:
 
 let
@@ -27,10 +31,29 @@ stdenvNoCC.mkDerivation {
   pname = "display-switch";
   inherit version src;
 
+  nativeBuildInputs =
+    [ ]
+    ++ lib.optionals stdenvNoCC.hostPlatform.isDarwin [ makeWrapper ]
+    ++ lib.optionals stdenvNoCC.hostPlatform.isLinux [ autoPatchelfHook ];
+
+  buildInputs =
+    [ ]
+    ++ lib.optionals stdenvNoCC.hostPlatform.isDarwin [ libusb1 ]
+    ++ lib.optionals stdenvNoCC.hostPlatform.isLinux [
+      libusb1
+      xorg.libX11
+      xorg.libXi
+    ];
+
   installPhase = ''
     runHook preInstall
 
     install -Dm755 display_switch $out/bin/display_switch
+
+    ${lib.optionalString stdenvNoCC.hostPlatform.isDarwin ''
+      wrapProgram $out/bin/display_switch \
+        --prefix DYLD_LIBRARY_PATH : "${libusb1.out}/lib"
+    ''}
 
     runHook postInstall
   '';

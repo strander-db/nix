@@ -220,7 +220,7 @@ in
       shell = "${pkgs.fish}/bin/fish --login --interactive";
     };
     keybindings = {
-      "cmd+d" = "launch --location=split";
+      "cmd+d" = "new_window_with_cwd";
       "cmd+w" = "close_window";
       "ctrl+h" = "neighboring_window left";
       "ctrl+j" = "neighboring_window down";

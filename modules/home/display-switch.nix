@@ -34,7 +34,8 @@ in
       example = "DisplayPort1";
       description = ''
         Monitor input to switch to when the USB device connects.
-        Supported values include Hdmi1, Hdmi2, DisplayPort1, DisplayPort2, Dvi1, Dvi2, and Vga1.
+        Named inputs: Hdmi1, Hdmi2, DisplayPort1, DisplayPort2, Dvi1, Dvi2, Vga1.
+        Use a raw DDC value when the input is not named, e.g. "0x31" for USB-C.
       '';
     };
 

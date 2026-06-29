@@ -10,7 +10,9 @@
   options.services.display-switch.enable = lib.mkEnableOption "display-switch USB KVM monitor switching";
 
   config = lib.mkIf config.services.display-switch.enable {
-  users.groups.i2c = { };
+    boot.kernelModules = [ "i2c-dev" ];
+
+    users.groups.i2c = { };
 
   users.users.${username}.extraGroups = [ "i2c" ];
 
