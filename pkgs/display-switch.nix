@@ -6,6 +6,7 @@
   makeWrapper,
   autoPatchelfHook,
   xorg,
+  gcc-unwrapped,
 }:
 
 let
@@ -43,6 +44,7 @@ stdenvNoCC.mkDerivation {
       libusb1
       xorg.libX11
       xorg.libXi
+      gcc-unwrapped.lib
     ];
 
   installPhase = ''
