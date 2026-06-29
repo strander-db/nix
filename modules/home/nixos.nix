@@ -688,7 +688,7 @@ in
       </object>
     </interface>
   '';
-  
+
   home.pointerCursor = {
     gtk.enable = true;
     x11.enable = true;
@@ -712,4 +712,10 @@ in
     export XCURSOR_THEME=catppuccin-mocha-mauve-cursors
     export XCURSOR_SIZE=32
   '';
+  xdg.portal = {
+    enable = true;
+    extraPortals = [ pkgs.xdg-desktop-portal-hyprland ];
+  };
+
+  services.hyprpolkitagent.enable = true;
 }

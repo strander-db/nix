@@ -117,6 +117,11 @@
         nixpkgs.hostPlatform = "x86_64-linux";
         system.stateVersion = "26.11";
 
+        environment.systemPackages = with pkgs; [
+          hyprpolkitagent
+        ];
+        security.polkit.enable = true;
+
         time.timeZone = "Europe/Kyiv";
         # Use the systemd-boot EFI boot loader.
         boot.loader.systemd-boot.enable = true;
@@ -393,6 +398,7 @@
             home-manager.useUserPackages = true;
             home-manager.backupFileExtension = "backup";
 
+            programs.git.config.credential.helper = "libsecret";
             home-manager.extraSpecialArgs = {
               inherit username;
               hostname = nixosHostname;
