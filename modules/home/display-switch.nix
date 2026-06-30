@@ -80,6 +80,9 @@ in
         ProgramArguments = [ "${cfg.package}/bin/display_switch" ];
         RunAtLoad = true;
         KeepAlive = true;
+        WatchPaths = [
+          "${config.home.homeDirectory}/Library/Preferences/display-switch.ini"
+        ];
       };
     };
   };
