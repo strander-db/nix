@@ -325,7 +325,7 @@
                   config = ''
                     cmd - return : open -n -a "/Users/${username}/Applications/Home Manager Apps/kitty.app"
 
-                    cmd + shift - return : open -a "/Users/${username}/Applications/Home Manager Apps/Google Chrome.app -- --args --new-window"
+                    cmd + shift - return : open -na "/Users/${username}/Applications/Home Manager Apps/Google Chrome.app" --args --new-window
 
                     cmd - 1 : yabai -m space --focus 1
 
@@ -334,14 +334,6 @@
                     cmd - 3 : yabai -m space --focus 3 || osascript ${./create_new_space.scrpt}
 
                     cmd - 4 : yabai -m space --focus 4 || osascript ${./create_new_space.scrpt}
-
-                    cmd + shift - 1 : yabai -m window --space 1
-
-                    cmd + shift - 2 : yabai -m window --space 2
-
-                    cmd + shift - 3 : yabai -m window --space 3
-
-                    cmd + shift - 4 : yabai -m window --space 4
 
                     cmd + shift - f : yabai -m window --toggle float
 
@@ -357,21 +349,37 @@
 
                     cmd - l : yabai -m window --focus east
 
-                    cmd + shift - h : yabai -m window --warp west
-
-                    cmd + shift - j : yabai -m window --warp south
-
-                    cmd + shift - k : yabai -m window --warp north
-
-                    cmd + shift - l : yabai -m window --warp east
-
-                    ctrl + shift - right : yabai -m window --space next
-
-                    ctrl + shift - left : yabai -m window --space prev
-
                     ctrl - right : yabai -m space --focus next
 
                     ctrl - left : yabai -m space --focus prev
+
+                    :: move
+
+                    cmd - m ; move
+
+                    move < cmd - 1 : yabai -m window --space 1
+
+                    move < cmd - 2 : yabai -m window --space 2
+
+                    move < cmd - 3 : yabai -m window --space 3
+
+                    move < cmd - 4 : yabai -m window --space 4
+
+                    move < cmd - h : yabai -m window --warp west
+
+                    move < cmd - j : yabai -m window --warp south
+
+                    move < cmd - k : yabai -m window --warp north
+
+                    move < cmd - l : yabai -m window --warp east
+
+                    move < ctrl - right : yabai -m window --space next
+
+                    move < ctrl - left : yabai -m window --space prev
+
+                    move < escape ; default
+
+                    move < cmd - m ; default
                   '';
                 };
               };

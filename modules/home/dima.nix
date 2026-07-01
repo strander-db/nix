@@ -214,13 +214,15 @@ in
     themeFile = "Catppuccin-Mocha";
     font = {
       name = "MesloLGM Nerd Font";
-      size = 12;
+      size = 14;
     };
     settings = {
       shell = "${pkgs.fish}/bin/fish --login --interactive";
+      enabled_layouts = "splits,stack";
+      macos_option_as_alt = "yes";
     };
     keybindings = {
-      "cmd+d" = "new_window_with_cwd";
+      "cmd+d" = "launch --location=split --cwd=current";
       "cmd+w" = "close_window";
       "ctrl+h" = "neighboring_window left";
       "ctrl+j" = "neighboring_window down";
@@ -228,6 +230,7 @@ in
       "ctrl+l" = "neighboring_window right";
       "cmd+c" = "copy_to_clipboard";
       "cmd+v" = "paste_from_clipboard";
+      "cmd+\\" = "next_layout";
     };
   };
   programs.nh = {

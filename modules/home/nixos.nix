@@ -199,26 +199,8 @@ in
       }
       {
         _args = [
-          "SUPER + SHIFT + 1"
-          (lib.generators.mkLuaInline "hl.dsp.window.move{workspace = 1, follow = true}")
-        ];
-      }
-      {
-        _args = [
-          "SUPER + SHIFT + 2"
-          (lib.generators.mkLuaInline "hl.dsp.window.move{workspace = 2, follow = true}")
-        ];
-      }
-      {
-        _args = [
-          "SUPER + SHIFT + 3"
-          (lib.generators.mkLuaInline "hl.dsp.window.move{workspace = 3, follow = true}")
-        ];
-      }
-      {
-        _args = [
-          "SUPER + SHIFT + 4"
-          (lib.generators.mkLuaInline "hl.dsp.window.move{workspace = 4, follow = true}")
+          "SUPER + M"
+          (lib.generators.mkLuaInline "hl.dsp.submap(\"move\")")
         ];
       }
       {
@@ -259,30 +241,6 @@ in
       }
       {
         _args = [
-          "SUPER + SHIFT + h"
-          (lib.generators.mkLuaInline "hl.dsp.window.swap{direction = \"l\"}")
-        ];
-      }
-      {
-        _args = [
-          "SUPER + SHIFT + j"
-          (lib.generators.mkLuaInline "hl.dsp.window.swap{direction = \"d\"}")
-        ];
-      }
-      {
-        _args = [
-          "SUPER + SHIFT + k"
-          (lib.generators.mkLuaInline "hl.dsp.window.swap{direction = \"u\"}")
-        ];
-      }
-      {
-        _args = [
-          "SUPER + SHIFT + l"
-          (lib.generators.mkLuaInline "hl.dsp.window.swap{direction = \"r\"}")
-        ];
-      }
-      {
-        _args = [
           "CTRL + RIGHT"
           (lib.generators.mkLuaInline "hl.dsp.focus{workspace = \"e+1\", on_current_monitor = true}")
         ];
@@ -295,20 +253,84 @@ in
       }
       {
         _args = [
-          "CTRL + SHIFT + RIGHT"
-          (lib.generators.mkLuaInline "hl.dsp.window.move{workspace = \"e+1\", follow = true}")
-        ];
-      }
-      {
-        _args = [
-          "CTRL + SHIFT + LEFT"
-          (lib.generators.mkLuaInline "hl.dsp.focus{workspace = \"e-1\", follow = true }")
-        ];
-      }
-      {
-        _args = [
           "CTRL + SUPER + F"
           (lib.generators.mkLuaInline "hl.dsp.workspace.toggle_special(\"fullscreen\")")
+        ];
+      }
+    ];
+  };
+  wayland.windowManager.hyprland.submaps.move = {
+    settings.bind = [
+      {
+        _args = [
+          "SUPER + 1"
+          (lib.generators.mkLuaInline "hl.dsp.window.move{workspace = 1, follow = true}")
+        ];
+      }
+      {
+        _args = [
+          "SUPER + 2"
+          (lib.generators.mkLuaInline "hl.dsp.window.move{workspace = 2, follow = true}")
+        ];
+      }
+      {
+        _args = [
+          "SUPER + 3"
+          (lib.generators.mkLuaInline "hl.dsp.window.move{workspace = 3, follow = true}")
+        ];
+      }
+      {
+        _args = [
+          "SUPER + 4"
+          (lib.generators.mkLuaInline "hl.dsp.window.move{workspace = 4, follow = true}")
+        ];
+      }
+      {
+        _args = [
+          "SUPER + h"
+          (lib.generators.mkLuaInline "hl.dsp.window.swap{direction = \"l\"}")
+        ];
+      }
+      {
+        _args = [
+          "SUPER + j"
+          (lib.generators.mkLuaInline "hl.dsp.window.swap{direction = \"d\"}")
+        ];
+      }
+      {
+        _args = [
+          "SUPER + k"
+          (lib.generators.mkLuaInline "hl.dsp.window.swap{direction = \"u\"}")
+        ];
+      }
+      {
+        _args = [
+          "SUPER + l"
+          (lib.generators.mkLuaInline "hl.dsp.window.swap{direction = \"r\"}")
+        ];
+      }
+      {
+        _args = [
+          "CTRL + RIGHT"
+          (lib.generators.mkLuaInline "hl.dsp.window.move{workspace = \"e+1\", follow = true, on_current_monitor = true}")
+        ];
+      }
+      {
+        _args = [
+          "CTRL + LEFT"
+          (lib.generators.mkLuaInline "hl.dsp.window.move{workspace = \"e-1\", follow = true, on_current_monitor = true}")
+        ];
+      }
+      {
+        _args = [
+          "ESCAPE"
+          (lib.generators.mkLuaInline "hl.dsp.submap(\"reset\")")
+        ];
+      }
+      {
+        _args = [
+          "SUPER + M"
+          (lib.generators.mkLuaInline "hl.dsp.submap(\"reset\")")
         ];
       }
     ];
