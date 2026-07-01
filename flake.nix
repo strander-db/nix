@@ -30,7 +30,7 @@
     let
       username = "dima";
       darwinHostname = "Dmytros-MacBook-Pro";
-      nixosHostname = "Dima-PC";
+      dimaPCHostname = "Dima-PC";
       darwinHomeDirectory = "/Users/${username}";
       nixosHomeDirectory = "/home/${username}";
       systems = [
@@ -108,80 +108,16 @@
           NH_DARWIN_FLAKE = "${darwinHomeDirectory}/.config/nix";
         };
       };
-      nixosConfiguration = { pkgs, ... }: {
-        imports = [
-          # Include the results of the hardware scan.
-          ./hardware-configuration.nix
-        ];
-
-        nixpkgs.hostPlatform = "x86_64-linux";
-        system.stateVersion = "26.11";
-
-        environment.systemPackages = with pkgs; [
-          hyprpolkitagent
-        ];
-        security.polkit.enable = true;
-
-        time.timeZone = "Europe/Kyiv";
-        # Use the systemd-boot EFI boot loader.
-        boot.loader.systemd-boot.enable = true;
-        boot.loader.efi.canTouchEfiVariables = true;
-
-        # Use latest kernel.
-        boot.kernelPackages = pkgs.linuxPackages_latest;
-
-        networking.hostName = nixosHostname; # Define your hostname.
-
-        # Configure network connections interactively with nmcli or nmtui.
-        networking.networkmanager.enable = true;
-
-        nixpkgs.config.allowUnfree = true;
-
-        security.rtkit.enable = true;
-
-        services.pipewire = {
-          enable = true;
-          alsa.enable = true;
-          alsa.support32Bit = true;
-          pulse.enable = true;
-          jack.enable = true;
-          wireplumber = {
-            enable = true;
-          };
+      nixosConfiguration =
+        { pkgs, ... }:
+        import ./config/nixos.nix {
+          inherit pkgs;
+          inherit home-manager;
+          inherit catppuccin;
+          inherit username;
+          hostname = dimaPCHostname;
+          homeDirectory = nixosHomeDirectory;
         };
-
-        users.users.${username} = {
-          isNormalUser = true;
-          home = nixosHomeDirectory;
-          extraGroups = [
-            "wheel"
-            "networkmanager"
-          ];
-        };
-
-        programs.hyprland = {
-          enable = true;
-          withUWSM = true;
-        };
-       
-
-        programs.steam = {
-          enable = true;
-          extest.enable = true;
-          extraCompatPackages = with pkgs; [
-            proton-ge-bin
-          ];
-          remotePlay.openFirewall = true;
-          localNetworkGameTransfers.openFirewall = true;
-        };
-
-        qt.platformTheme = "qt5ct";
-
-        catppuccin = {
-          enable = true;
-          autoEnable = true;
-        };
-      };
     in
     {
       packages = forAllSystems (
@@ -388,19 +324,25 @@
         ];
       };
 
-      nixosConfigurations.${nixosHostname} = nixpkgs.lib.nixosSystem {
+      nixosConfigurations.${dimaPCHostname} = nixpkgs.lib.nixosSystem {
         specialArgs = {
           inherit username;
         };
         modules = [
           commonConfiguration
           nixosConfiguration
+          ./config/Dima-PC-hardware.nix
+          {
+            nixpkgs.overlays = [
+              (final: prev: {
+                display-switch = final.callPackage ./pkgs/display-switch.nix { };
+              })
+            ];
+          }
           ./modules/nixos/display-switch.nix
           {
             services.display-switch.enable = true;
           }
-          home-manager.nixosModules.default
-          catppuccin.nixosModules.catppuccin
           {
             home-manager.useGlobalPkgs = true;
             home-manager.useUserPackages = true;
@@ -409,7 +351,7 @@
             programs.git.config.credential.helper = "libsecret";
             home-manager.extraSpecialArgs = {
               inherit username;
-              hostname = nixosHostname;
+              hostname = dimaPCHostname;
               homeDirectory = nixosHomeDirectory;
               nmrs-gui = nmrs-gui.packages.x86_64-linux.default;
               # Physical DisplayPort on L27h-4A (verify with: ddcutil getvcp 0x60).
@@ -424,16 +366,7 @@
               ];
             };
           }
-          (
-            { pkgs, ... }:
-            {
-              nixpkgs.overlays = [
-                (final: prev: {
-                  display-switch = final.callPackage ./pkgs/display-switch.nix { };
-                })
-              ];
-            }
-          )
+
         ];
       };
     };

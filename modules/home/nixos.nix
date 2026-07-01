@@ -101,6 +101,8 @@ in
         follow_mouse = 2;
         kb_layout = "us,ua";
         kb_options = "grp:ctrl_space_toggle,caps:swapescape";
+        repeat_rate = 50;
+        repeat_delay = 250;
       };
       general = {
         gaps_in = 3;
