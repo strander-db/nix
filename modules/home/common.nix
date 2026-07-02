@@ -5,6 +5,7 @@
   username,
   homeDirectory,
   displayConnection,
+  catppuccin,
   ...
 }:
 
@@ -19,6 +20,7 @@ in
 {
   imports = [
     ./display-switch.nix
+    catppuccin.homeModules.catppuccin
   ];
 
   services.display-switch = {

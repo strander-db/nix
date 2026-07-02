@@ -15,6 +15,7 @@
   nixpkgs.hostPlatform = "x86_64-linux";
   system.stateVersion = "26.11";
 
+  programs.git.config.credential.helper = "libsecret";
   environment.systemPackages = with pkgs; [
     hyprpolkitagent
   ];

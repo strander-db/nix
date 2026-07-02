@@ -5,7 +5,8 @@
   libusb1,
   makeWrapper,
   autoPatchelfHook,
-  xorg,
+  libX11,
+  libXi,
   gcc-unwrapped,
 }:
 
@@ -42,8 +43,8 @@ stdenvNoCC.mkDerivation {
     ++ lib.optionals stdenvNoCC.hostPlatform.isDarwin [ libusb1 ]
     ++ lib.optionals stdenvNoCC.hostPlatform.isLinux [
       libusb1
-      xorg.libX11
-      xorg.libXi
+      libX11
+      libXi
       gcc-unwrapped.lib
     ];
 
