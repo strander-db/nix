@@ -1,7 +1,6 @@
 {
   pkgs,
   home-manager,
-  catppuccin,
   username,
   hostname,
   homeDirectory,
@@ -10,7 +9,7 @@
 {
   imports = [
     home-manager.nixosModules.default
-    catppuccin.nixosModules.catppuccin
+    # catppuccin.nixosModules.catppuccin
   ];
   nixpkgs.hostPlatform = "x86_64-linux";
   system.stateVersion = "26.11";
@@ -48,6 +47,10 @@
       enable = true;
     };
   };
+  services.openssh.enable = true;
+  services.openssh.openFirewall = true;
+
+  hardware.uinput.enable = true;
 
   users.users.${username} = {
     isNormalUser = true;
@@ -57,6 +60,9 @@
       "networkmanager"
     ];
   };
+
+  users.groups.input.members = [ username ];
+  users.groups.uinput.members = [ username ];
 
   programs.hyprland = {
     enable = true;
@@ -75,8 +81,19 @@
 
   qt.platformTheme = "qt5ct";
 
-  catppuccin = {
-    enable = true;
-    autoEnable = true;
+  # catppuccin = {
+  #   enable = true;
+  #   autoEnable = true;
+  # };
+
+  programs.appimage.enable = true;
+  programs.appimage.binfmt = true;
+  programs.appimage.package = pkgs.appimage-run.override {
+    extraPkgs = pkgs: [
+      pkgs.icu
+      pkgs.libxcrypt-legacy
+      pkgs.python312
+      # pkgs.python312Packages.torch
+    ];
   };
 }

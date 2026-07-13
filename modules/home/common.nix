@@ -20,6 +20,7 @@ in
 {
   imports = [
     ./display-switch.nix
+    ./opencode.nix
     catppuccin.homeModules.catppuccin
   ];
 
@@ -35,6 +36,8 @@ in
   home.stateVersion = "26.05";
 
   programs.home-manager.enable = true;
+
+  xdg.enable = true;
 
   home.packages = with pkgs; [
     fish
@@ -67,8 +70,6 @@ in
   programs.fastfetch = {
     enable = true;
   };
-
-  programs.man.package = pkgs.man;
 
   programs.git = {
     enable = true;
@@ -233,6 +234,7 @@ in
       "cmd+c" = "copy_to_clipboard";
       "cmd+v" = "paste_from_clipboard";
       "cmd+\\" = "next_layout";
+      "cmd+t" = "new_tab";
     };
   };
   programs.nh = {

@@ -14,6 +14,9 @@
     catppuccin.url = "github:catppuccin/nix";
     nmrs-gui.url = "github:networkmanager-rs/nmrs-gui";
     nmrs-gui.inputs.nixpkgs.follows = "nixpkgs";
+
+    xremap-flake.url = "github:xremap/nix-flake";
+    xremap-flake.inputs.nixpkgs.follows = "nixpkgs";
   };
 
   outputs =
@@ -25,6 +28,7 @@
       mac-app-util,
       catppuccin,
       nmrs-gui,
+      xremap-flake,
       ...
     }:
     let
@@ -51,18 +55,7 @@
           inherit self;
           inherit pkgs;
           inherit username;
-          inherit catppuccin;
           homeDirectory = darwinHomeDirectory;
-        };
-      nixosConfiguration =
-        { pkgs, ... }:
-        import ./config/nixos.nix {
-          inherit pkgs;
-          inherit home-manager;
-          inherit catppuccin;
-          inherit username;
-          hostname = dimaPCHostname;
-          homeDirectory = nixosHomeDirectory;
         };
     in
     {
@@ -76,6 +69,7 @@
         in
         {
           display-switch = pkgs.callPackage ./pkgs/display-switch.nix { };
+          opencode-model-router = pkgs.callPackage ./pkgs/opencode-model-router.nix { };
         }
       );
       darwinConfigurations.${mbProHostname} = nix-darwin.lib.darwinSystem {
@@ -94,6 +88,7 @@
             nixpkgs.overlays = [
               (final: prev: {
                 display-switch = final.callPackage ./pkgs/display-switch.nix { };
+                opencode-model-router = final.callPackage ./pkgs/opencode-model-router.nix { };
               })
             ];
           }
@@ -111,18 +106,20 @@
       nixosConfigurations.${dimaPCHostname} = nixpkgs.lib.nixosSystem {
         specialArgs = {
           inherit username;
+          homeDirectory = nixosHomeDirectory;
           hostname = dimaPCHostname;
-          homeDirectory = darwinHomeDirectory;
+          inherit home-manager;
           inherit catppuccin;
         };
         modules = [
-          commonConfiguration
-          nixosConfiguration
+          ./config/common.nix
+          ./config/nixos.nix
           ./config/Dima-PC-hardware.nix
           {
             nixpkgs.overlays = [
               (final: prev: {
                 display-switch = final.callPackage ./pkgs/display-switch.nix { };
+                opencode-model-router = final.callPackage ./pkgs/opencode-model-router.nix { };
               })
             ];
           }
@@ -132,21 +129,17 @@
           }
           {
             home-manager.extraSpecialArgs = {
-              inherit username;
-              hostname = dimaPCHostname;
               homeDirectory = nixosHomeDirectory;
+              hostname = dimaPCHostname;
               nmrs-gui = nmrs-gui.packages.x86_64-linux.default;
               # Physical DisplayPort on L27h-4A (verify with: ddcutil getvcp 0x60).
               displayConnection = "0x0f";
             };
-
-            home-manager.users.${username} = {
-              imports = [
-                catppuccin.homeModules.catppuccin
-                ./modules/home/common.nix
-                ./modules/home/nixos.nix
-              ];
-            };
+            home-manager.users.${username}.imports = [
+              ./modules/home/common.nix
+              ./modules/home/nixos.nix
+              xremap-flake.homeManagerModules.default
+            ];
           }
 
         ];

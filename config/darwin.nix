@@ -3,7 +3,6 @@
   pkgs,
   username,
   homeDirectory,
-  catppuccin,
 }:
 let
   yabai-indicator = pkgs.callPackage ../pkgs/yabai-indicator.nix { };
@@ -115,7 +114,7 @@ in
     };
   };
   home-manager.users.${username} =
-    { pkgs, ... }:
+    { pkgs, catppuccin, ... }:
     import ../modules/home/darwin.nix {
       inherit pkgs;
       inherit username;

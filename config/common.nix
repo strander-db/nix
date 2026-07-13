@@ -14,7 +14,7 @@
   home-manager.useGlobalPkgs = true;
   home-manager.useUserPackages = true;
   home-manager.backupFileExtension = "backup";
-  home-manager.users.${username} = import ../modules/home/common.nix;
+  
   environment.systemPackages = with pkgs; [
     git
     curl

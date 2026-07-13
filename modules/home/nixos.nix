@@ -31,14 +31,102 @@ let
 
     if ${pkgs.hyprland}/bin/hyprctl clients -j | ${pkgs.jq}/bin/jq -e --arg c "$title" '
       any(.[]; .title == $c or .initialTitle == $c)' > /dev/null; then
-      ${pkgs.hyprland}/bin/hyprctl dispatch "hl.dsp.window.close({ name = \"title:^($title)$\" })"
+      ${pkgs.hyprland}/bin/hyprctl dispatch "hl.dsp.window.close({ name = \"title:^(\"$title\")$\" })"
     else
       "$@" &
     fi
   '';
 
+  chromeClassFilter = [ "google-chrome" "Google-chrome" "chromium" ];
+
+  chromeRemapList = [
+    { from = "Super-X"; to = "C-x"; }
+    { from = "Super-C"; to = "C-c"; }
+    { from = "Super-V"; to = "C-v"; }
+    { from = "Super-A"; to = "C-a"; }
+    { from = "Super-Z"; to = "C-z"; }
+    { from = "Super-Shift-Z"; to = "C-S-z"; }
+    { from = "Super-T"; to = "C-t"; }
+    { from = "Super-W"; to = "C-w"; }
+    { from = "Super-Shift-T"; to = "C-S-t"; }
+    { from = "Super-L"; to = "C-l"; }
+    { from = "Super-F"; to = "C-f"; }
+    { from = "Super-R"; to = "C-r"; }
+    { from = "Super-D"; to = "C-d"; }
+    { from = "Super-N"; to = "C-n"; }
+    { from = "Super-Shift-N"; to = "C-S-n"; }
+    { from = "Alt-Left"; to = "C-Left"; }
+    { from = "Alt-Right"; to = "C-Right"; }
+    { from = "Alt-Shift-Left"; to = "C-S-Left"; }
+    { from = "Alt-Shift-Right"; to = "C-S-Right"; }
+    { from = "Super-Left"; to = "Home"; }
+    { from = "Super-Right"; to = "End"; }
+    { from = "Super-Shift-Left"; to = "S-Home"; }
+    { from = "Super-Shift-Right"; to = "S-End"; }
+  ];
+
+  workspaceSwitchRemap = {
+    "Ctrl-Left" = "Super-Ctrl-Left";
+    "Ctrl-Right" = "Super-Ctrl-Right";
+  };
+
+  normalXremapConfig = {
+    keymap = [
+      {
+        name = "Workspace switching";
+        remap = workspaceSwitchRemap;
+      }
+      {
+        name = "Chrome mac-style shortcuts";
+        application.only = chromeClassFilter;
+        remap = lib.listToAttrs (
+          map (r: {
+            name = r.from;
+            value = r.to;
+          }) chromeRemapList
+        );
+      }
+    ];
+  };
+
+  fullscreenXremapConfig = {
+    modmap = [
+      {
+        name = "Swap Super/Alt in fullscreen workspace";
+        remap = {
+          KEY_LEFTMETA = "KEY_LEFTALT";
+          KEY_LEFTALT = "KEY_LEFTMETA";
+          KEY_RIGHTMETA = "KEY_RIGHTALT";
+          KEY_RIGHTALT = "KEY_RIGHTMETA";
+        };
+      }
+    ];
+    keymap = [
+      {
+        name = "Passthrough Hyprland fullscreen exit shortcut";
+        remap = {
+          "C-Alt-F" = "C-Super-F";
+        };
+      }
+      {
+        name = "Chrome mac-style shortcuts";
+        application.only = chromeClassFilter;
+        remap = lib.listToAttrs (
+          map (r: {
+            name = r.from;
+            value = r.to;
+          }) chromeRemapList
+        );
+      }
+    ];
+  };
+
 in
 {
+
+  imports = [
+    ./battlenet.nix
+  ];
 
   home.packages = with pkgs; [
     hyprlauncher
@@ -136,6 +224,7 @@ in
         disable_hyprland_logo = true;
         disable_splash_rendering = true;
         animate_manual_resizes = true;
+        focus_on_activate = true;
       };
 
       group = {
@@ -161,6 +250,18 @@ in
         _args = [
           "SUPER + SHIFT + RETURN"
           (lib.generators.mkLuaInline "hl.dsp.exec_cmd(\"google-chrome\")")
+        ];
+      }
+      {
+        _args = [
+          "CTRL + SUPER + F"
+          (lib.generators.mkLuaInline "hl.dsp.focus{workspace = \"name:fullscreen\"}")
+        ];
+      }
+      {
+        _args = [
+          "CTRL + SUPER + S"
+          (lib.generators.mkLuaInline "hl.dsp.focus{workspace = \"name:steam\"}")
         ];
       }
       {
@@ -243,20 +344,14 @@ in
       }
       {
         _args = [
-          "CTRL + RIGHT"
+          "SUPER + CTRL + RIGHT"
           (lib.generators.mkLuaInline "hl.dsp.focus{workspace = \"e+1\", on_current_monitor = true}")
         ];
       }
       {
         _args = [
-          "CTRL + LEFT"
+          "SUPER + CTRL + LEFT"
           (lib.generators.mkLuaInline "hl.dsp.focus{workspace = \"e-1\", on_current_monitor = true}")
-        ];
-      }
-      {
-        _args = [
-          "CTRL + SUPER + F"
-          (lib.generators.mkLuaInline "hl.dsp.workspace.toggle_special(\"fullscreen\")")
         ];
       }
     ];
@@ -313,13 +408,13 @@ in
       }
       {
         _args = [
-          "CTRL + RIGHT"
+          "SUPER + CTRL + RIGHT"
           (lib.generators.mkLuaInline "hl.dsp.window.move{workspace = \"e+1\", follow = true, on_current_monitor = true}")
         ];
       }
       {
         _args = [
-          "CTRL + LEFT"
+          "SUPER + CTRL + LEFT"
           (lib.generators.mkLuaInline "hl.dsp.window.move{workspace = \"e-1\", follow = true, on_current_monitor = true}")
         ];
       }
@@ -352,22 +447,57 @@ in
     fullscreen_workspace = {
       autoLoad = true;
       content = ''
-        local FULLSCREEN_WS = "special:fullscreen"
+        local FULLSCREEN_WS = "fullscreen"
+        local FULLSCREEN_WS_SEL = "name:fullscreen"
         local prev_ws = {}
+        local fullscreen_windows = {}
+
+        local xremap_dir = os.getenv("XDG_CONFIG_HOME")
+        if not xremap_dir then
+          xremap_dir = (os.getenv("HOME") or "") .. "/.config"
+        end
+        xremap_dir = xremap_dir .. "/xremap"
+
+        local function set_xremap_fullscreen(enabled)
+          local target = enabled and "fullscreen.yaml" or "normal.yaml"
+          os.execute(string.format("cp -f %q/%q %q/active.yaml", xremap_dir, target, xremap_dir))
+        end
+
+        local function is_fullscreen_ws(name)
+          return name == FULLSCREEN_WS
+        end
 
         local function is_client_fullscreen(w)
           -- State 2 = fullscreen, 3 = maximize+fullscreen. State 1 (maximized) is SUPER+G — leave it alone.
           return w.fullscreen_client >= 2
         end
 
+        local function count_fullscreen_windows()
+          local n = 0
+          for _ in pairs(fullscreen_windows) do
+            n = n + 1
+          end
+          return n
+        end
+
+        local function update_fullscreen_mode()
+          if count_fullscreen_windows() > 0 then
+            hl.dispatch(hl.dsp.submap("fullscreen"))
+            set_xremap_fullscreen(true)
+          else
+            hl.dispatch(hl.dsp.submap("reset"))
+            set_xremap_fullscreen(false)
+          end
+        end
+
         local function move_to_fullscreen_ws(w)
-          if not w.workspace or w.workspace.name == FULLSCREEN_WS then
+          if not w.workspace or is_fullscreen_ws(w.workspace.name) then
             return
           end
           prev_ws[w.address] = w.workspace.name
           hl.dispatch(hl.dsp.window.move({
             window = "address:" .. w.address,
-            workspace = FULLSCREEN_WS,
+            workspace = FULLSCREEN_WS_SEL,
             follow = true,
           }))
         end
@@ -378,25 +508,48 @@ in
             return
           end
           prev_ws[w.address] = nil
+          local ws_sel = tonumber(dest) and dest or ("name:" .. dest)
           hl.dispatch(hl.dsp.window.move({
             window = "address:" .. w.address,
-            workspace = dest,
+            workspace = ws_sel,
             follow = false,
           }))
         end
 
         local function handle_fullscreen(w)
-          if is_client_fullscreen(w) then
+          local was_fullscreen = fullscreen_windows[w.address]
+          local is_fullscreen = is_client_fullscreen(w)
+
+          if is_fullscreen and not was_fullscreen then
+            fullscreen_windows[w.address] = true
             move_to_fullscreen_ws(w)
-          else
+          elseif not is_fullscreen and was_fullscreen then
+            fullscreen_windows[w.address] = nil
             restore_from_fullscreen_ws(w)
           end
+
+          update_fullscreen_mode()
         end
 
         hl.on("window.fullscreen", handle_fullscreen)
         hl.on("window.open", handle_fullscreen)
         hl.on("window.close", function(w)
-          prev_ws[w.address] = nil
+          if fullscreen_windows[w.address] then
+            fullscreen_windows[w.address] = nil
+            prev_ws[w.address] = nil
+            update_fullscreen_mode()
+          end
+        end)
+
+        -- Fallback: sync state when the active workspace changes.
+        hl.on("workspace.active", function(ws)
+          if is_fullscreen_ws(ws.name) and count_fullscreen_windows() > 0 then
+            hl.dispatch(hl.dsp.submap("fullscreen"))
+            set_xremap_fullscreen(true)
+          else
+            hl.dispatch(hl.dsp.submap("reset"))
+            set_xremap_fullscreen(false)
+          end
         end)
       '';
     };
@@ -439,6 +592,50 @@ in
         })
       '';
     };
+    steam_workspace = {
+      autoLoad = true;
+      content = ''
+        hl.workspace_rule({
+          workspace = "name:steam",
+          layout = "master",
+        })
+
+        hl.window_rule({
+          name = "steam-main",
+          match = { class = "steam", title = "^Steam$" },
+          workspace = "name:steam",
+        })
+
+        hl.window_rule({
+          name = "steam-friends",
+          match = { class = "[Ss]team", title = "^Friends" },
+          workspace = "name:steam",
+          float = true,
+          size = { 320, "monitor_h" },
+          move = { "monitor_w-320", "0" },
+        })
+
+        hl.window_rule({
+          name = "battlenet-launcher",
+          match = { class = "steam_app_0", title = "^Battle.net$" },
+          workspace = "name:battlenet",
+        })
+
+        hl.window_rule({
+          name = "wow-flicker-fix",
+          match = { class = "Wow.*" },
+          workspace = "name:battlenet",
+          fullscreen = true,
+        })
+
+        hl.window_rule({
+          name = "wow-flicker-fix-steam",
+          match = { class = "steam_app_0", title = "^World of Warcraft" },
+          workspace = "name:battlenet",
+          fullscreen = true,
+        })
+      '';
+    };
   };
   qt.enable = true;
   qt.style.name = "kvantum";
@@ -449,6 +646,40 @@ in
       style = "kvantum";
     };
   };
+  xdg.configFile."xremap/normal.yaml".text = lib.generators.toYAML { } normalXremapConfig;
+  xdg.configFile."xremap/fullscreen.yaml".text = lib.generators.toYAML { } fullscreenXremapConfig;
+
+  services.xremap = {
+    enable = true;
+    withHypr = true;
+    yamlConfig = lib.generators.toYAML { } normalXremapConfig;
+  };
+
+  systemd.user.services.xremap.Service = {
+    ExecStart = lib.mkForce
+      "${lib.getExe config.services.xremap.package} --watch=config ${config.xdg.configHome}/xremap/active.yaml";
+    ExecStartPre = [
+      "${pkgs.coreutils}/bin/cp -f ${config.xdg.configHome}/xremap/normal.yaml ${config.xdg.configHome}/xremap/active.yaml"
+    ];
+  };
+
+  wayland.windowManager.hyprland.submaps.fullscreen = {
+    settings.bind = [
+      {
+        _args = [
+          "CTRL + SUPER + F"
+          (lib.generators.mkLuaInline "hl.dsp.focus{workspace = \"previous\"}")
+        ];
+      }
+      {
+        _args = [
+          "SUPER + Q"
+          (lib.generators.mkLuaInline "hl.dsp.exec_cmd(\"true\")")
+        ];
+      }
+    ];
+  };
+
   services.hyprlauncher = {
     enable = true;
   };
@@ -495,7 +726,7 @@ in
           };
         };
         "hyprland/workspaces" = {
-          format = "{id} {windows}";
+          format = "{name} {windows}";
           format-window-separator = " ";
           window-rewrite-default = "󰈙";
           window-rewrite = {
@@ -516,6 +747,8 @@ in
           };
           "persistent-workspaces" = {
             "*" = 4;
+            "steam" = 1;
+            "battlenet" = 1;
           };
         };
         "hyprland/language" = {
@@ -742,4 +975,5 @@ in
   };
 
   services.hyprpolkitagent.enable = true;
+
 }

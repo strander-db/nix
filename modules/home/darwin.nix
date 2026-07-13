@@ -1,5 +1,7 @@
 { pkgs, username, catppuccin, yabai-indicator }:
 {
+  imports = [ ../home/opencode.nix ];
+
   home.packages = import ./darwin-packages.nix { inherit pkgs; } ++ [ yabai-indicator ];
   programs.rectangle.enable = true;
   programs.git.settings.credential.helper = "osxkeychain";
