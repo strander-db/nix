@@ -14,9 +14,14 @@
   nixpkgs.hostPlatform = "x86_64-linux";
   system.stateVersion = "26.11";
 
-  programs.git.config.credential.helper = "libsecret";
+  programs.git = {
+    enable = true;
+    package = pkgs.gitFull;
+    config.credential.helper = "libsecret";
+  };
   environment.systemPackages = with pkgs; [
     hyprpolkitagent
+    libsecret
   ];
   security.polkit.enable = true;
 
@@ -49,6 +54,7 @@
   };
   services.openssh.enable = true;
   services.openssh.openFirewall = true;
+  services.gnome.gnome-keyring.enable = true;
 
   hardware.uinput.enable = true;
 

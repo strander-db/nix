@@ -132,9 +132,8 @@ in
     hyprlauncher
     steam
     dunst
-    catppuccin-gtk
     networkmanagerapplet
-    lxqt.pavucontrol-qt
+    pavucontrol
     nmrs-gui
     libsForQt5.qt5ct
     libsForQt5.qtstyleplugin-kvantum
@@ -144,6 +143,7 @@ in
     hyprshutdown
     wl-clipboard
     wl-clipboard-x11
+    playerctl
   ];
 
   catppuccin = {
@@ -160,8 +160,12 @@ in
   gtk = {
     enable = true;
     theme = {
-      name = "Catppuccin-Mocha";
-      package = pkgs.catppuccin-gtk;
+      name = "catppuccin-mocha-blue-standard";
+      package = pkgs.catppuccin-gtk.override {
+        variant = "mocha";
+        accents = [ "blue" ];
+        size = "standard";
+      };
     };
     gtk4.extraConfig = {
       gtk-application-prefer-dark-theme = 1;
@@ -238,6 +242,18 @@ in
         force_zero_scaling = true;
       };
 
+    };
+    on = {
+      _args = [
+        "hyprland.start"
+        (lib.generators.mkLuaInline ''
+          function()
+            hl.exec_cmd("${pkgs.coreutils}/bin/env QT_QPA_PLATFORM=xcb GDK_BACKEND=x11 ${pkgs.kdePackages.plasma-workspace}/bin/xembedsniproxy")
+            hl.exec_cmd("battlenet-launch", { workspace = "name:battlenet" })
+            hl.exec_cmd("steam", { workspace = "name:steam" })
+          end
+        '')
+      ];
     };
     bind = [
       {
@@ -604,7 +620,8 @@ in
           name = "steam-main",
           match = { class = "steam", title = "^Steam$" },
           workspace = "name:steam",
-        })
+          no_initial_focus = true
+         })
 
         hl.window_rule({
           name = "steam-friends",
@@ -613,13 +630,16 @@ in
           float = true,
           size = { 320, "monitor_h" },
           move = { "monitor_w-320", "0" },
-        })
+          no_initial_focus = true
+         })
 
         hl.window_rule({
           name = "battlenet-launcher",
           match = { class = "steam_app_0", title = "^Battle.net$" },
           workspace = "name:battlenet",
-        })
+          no_initial_focus = true,
+          focus_on_activate = false
+         })
 
         hl.window_rule({
           name = "wow-flicker-fix",
@@ -634,6 +654,14 @@ in
           workspace = "name:battlenet",
           fullscreen = true,
         })
+      '';
+    };
+    sound_controls = {
+      autoLoad = true;
+      content = ''
+        hl.bind("XF86AudioRaiseVolume", hl.dsp.exec_cmd("wpctl set-mute @DEFAULT_AUDIO_SINK@ 0 && wpctl set-volume -l 1.4 @DEFAULT_AUDIO_SINK@ 5%+"))
+        hl.bind("XF86AudioLowerVolume", hl.dsp.exec_cmd("wpctl set-mute @DEFAULT_AUDIO_SINK@ 0 && wpctl set-volume -l 1.4 @DEFAULT_AUDIO_SINK@ 5%-"))
+        hl.bind("XF86AudioMute", hl.dsp.exec_cmd("wpctl set-mute @DEFAULT_AUDIO_SINK@ toggle"))
       '';
     };
   };
@@ -753,10 +781,10 @@ in
         };
         "hyprland/language" = {
           format = "⌨️ {}";
-          keyboard-name = "logitech-usb-receiver";
+          keyboard-name = "xremap";
           format-en = "US 🇺🇸";
           format-uk = "UA 🇺🇦";
-          on-click = "hyprctl switchxkblayout logitech-usb-receiver";
+          on-click = "hyprctl switchxkblayout xremap";
         };
         pulseaudio = {
           format = "{icon} {volume}%";
@@ -771,7 +799,7 @@ in
             handsfree = "󰋎";
             headset = "󰋎";
           };
-          on-click = "waybar-toggle-title \"Volume Control\" pavucontrol-qt";
+          on-click = "waybar-toggle-class org.pulseaudio.pavucontrol pavucontrol";
           scroll-step = 5;
         };
         network = {
@@ -953,20 +981,20 @@ in
     size = 32;
   };
   home.sessionVariables = {
-    GTK_THEME = "Catppuccin-Mocha";
+    GTK_THEME = "catppuccin-mocha-blue-standard";
     QT_QPA_PLATFORMTHEME = "qt5ct";
   };
   xdg.configFile."uwsm/env".text = ''
-    export GTK_THEME=Catppuccin-Mocha
-    export XCURSOR_THEME=catppuccin-mocha-mauve-cursors
+    export GTK_THEME=catppuccin-mocha-blue-standard
+    export XCURSOR_THEME=catppuccin-mocha-blue-cursors
     export XCURSOR_SIZE=32
-    export HYPRCURSOR_THEME=catppuccin-mocha-mauve-cursors
+    export HYPRCURSOR_THEME=catppuccin-mocha-blue-cursors
     export HYPRCURSOR_SIZE=32
   '';
   xdg.configFile."uwsm/env-hyprland".text = ''
-    export HYPRCURSOR_THEME=catppuccin-mocha-mauve-cursors
+    export HYPRCURSOR_THEME=catppuccin-mocha-blue-cursors
     export HYPRCURSOR_SIZE=32
-    export XCURSOR_THEME=catppuccin-mocha-mauve-cursors
+    export XCURSOR_THEME=catppuccin-mocha-blue-cursors
     export XCURSOR_SIZE=32
   '';
   xdg.portal = {

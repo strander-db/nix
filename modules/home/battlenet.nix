@@ -35,10 +35,10 @@ let
     esac
 
     # Make sure Battle.net is running so auth/session works.
-    if ! systemctl --user is-active battlenet >/dev/null 2>&1; then
+    if ! ${pkgs.procps}/bin/pgrep -f "Battle.net Launcher.exe" >/dev/null 2>&1; then
       echo "Starting Battle.net..." >&2
-      systemctl --user start battlenet
-      sleep 8
+      ${lib.getExe battlenet-launch} &
+      ${pkgs.coreutils}/bin/sleep 8
     fi
 
     export STEAM_COMPAT_DATA_PATH="${battlenetPrefix}"
@@ -51,35 +51,6 @@ let
 in
 {
   home.packages = [ battlenet-launch wow-gamescope pkgs.umu-launcher pkgs.gamescope ];
-
-  systemd.user.services.xembedsniproxy = {
-    Unit = {
-      Description = "XEmbed to SNI system tray proxy";
-    };
-    Service = {
-      Type = "simple";
-      ExecStart = "${pkgs.kdePackages.plasma-workspace}/bin/xembedsniproxy";
-      Restart = "on-failure";
-      Environment = [
-        "QT_QPA_PLATFORM=xcb"
-        "GDK_BACKEND=x11"
-      ];
-    };
-    Install.WantedBy = [ "hyprland-session.target" ];
-  };
-
-  systemd.user.services.battlenet = {
-    Unit = {
-      Description = "Battle.net launcher (standalone Proton/UMU)";
-      After = [ "hyprland-session.target" "xembedsniproxy.service" ];
-    };
-    Service = {
-      Type = "simple";
-      ExecStart = "${lib.getExe battlenet-launch}";
-      Restart = "no";
-    };
-    Install.WantedBy = [ "hyprland-session.target" ];
-  };
 
   wayland.windowManager.hyprland.settings.bind = [
     {
