@@ -65,6 +65,7 @@ in
     ttyper
     kitty
     emoji-picker
+    tuxguitar
   ];
 
   programs.fastfetch = {
