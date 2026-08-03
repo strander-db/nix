@@ -56,6 +56,10 @@
   services.openssh.openFirewall = true;
   services.gnome.gnome-keyring.enable = true;
 
+  services.udev.packages = [
+    pkgs.openocd
+  ];
+
   hardware.uinput.enable = true;
 
   users.users.${username} = {

@@ -126,6 +126,7 @@ in
 
   imports = [
     ./battlenet.nix
+    ./aion.nix
   ];
 
   home.packages = with pkgs; [

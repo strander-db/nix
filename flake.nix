@@ -69,7 +69,6 @@
         in
         {
           display-switch = pkgs.callPackage ./pkgs/display-switch.nix { };
-          opencode-model-router = pkgs.callPackage ./pkgs/opencode-model-router.nix { };
         }
       );
       darwinConfigurations.${mbProHostname} = nix-darwin.lib.darwinSystem {
@@ -88,7 +87,6 @@
             nixpkgs.overlays = [
               (final: prev: {
                 display-switch = final.callPackage ./pkgs/display-switch.nix { };
-                opencode-model-router = final.callPackage ./pkgs/opencode-model-router.nix { };
               })
             ];
           }
@@ -119,7 +117,6 @@
             nixpkgs.overlays = [
               (final: prev: {
                 display-switch = final.callPackage ./pkgs/display-switch.nix { };
-                opencode-model-router = final.callPackage ./pkgs/opencode-model-router.nix { };
               })
             ];
           }
