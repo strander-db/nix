@@ -42,21 +42,6 @@
         "x86_64-linux"
       ];
       forAllSystems = f: nixpkgs.lib.genAttrs systems f;
-      commonConfiguration =
-        { pkgs, ... }:
-        import ./config/common.nix {
-          inherit pkgs;
-          inherit username;
-          inherit catppuccin;
-        };
-      darwinConfiguration =
-        { pkgs, ... }:
-        import ./config/darwin.nix {
-          inherit self;
-          inherit pkgs;
-          inherit username;
-          homeDirectory = darwinHomeDirectory;
-        };
     in
     {
       packages = forAllSystems (
@@ -73,16 +58,15 @@
       );
       darwinConfigurations.${mbProHostname} = nix-darwin.lib.darwinSystem {
         specialArgs = {
-          inherit username;
+          inherit self username catppuccin;
           hostname = mbProHostname;
           homeDirectory = darwinHomeDirectory;
-          inherit catppuccin;
         };
         modules = [
           mac-app-util.darwinModules.default
           home-manager.darwinModules.home-manager
-          commonConfiguration
-          darwinConfiguration
+          ./config/common.nix
+          ./config/darwin.nix
           {
             nixpkgs.overlays = [
               (final: prev: {
