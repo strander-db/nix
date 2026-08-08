@@ -496,8 +496,11 @@ in
           return n
         end
 
-        local function update_fullscreen_mode()
-          if count_fullscreen_windows() > 0 then
+        -- Only enable Alt/Super swap + fullscreen submap while the *active* workspace is
+        -- the fullscreen one. Gating on window count alone re-applies remaps after leaving
+        -- (e.g. any later maximize/fullscreen event).
+        local function sync_fullscreen_mode(active_ws_name)
+          if is_fullscreen_ws(active_ws_name) and count_fullscreen_windows() > 0 then
             hl.dispatch(hl.dsp.submap("fullscreen"))
             set_xremap_fullscreen(true)
           else
@@ -539,12 +542,16 @@ in
           if is_fullscreen and not was_fullscreen then
             fullscreen_windows[w.address] = true
             move_to_fullscreen_ws(w)
+            -- follow=true moves us onto the fullscreen workspace
+            sync_fullscreen_mode(FULLSCREEN_WS)
           elseif not is_fullscreen and was_fullscreen then
             fullscreen_windows[w.address] = nil
             restore_from_fullscreen_ws(w)
+            -- follow=false: stay on current workspace; disable if nothing left here
+            sync_fullscreen_mode(w.workspace and w.workspace.name or "")
           end
-
-          update_fullscreen_mode()
+          -- Ignore maximize/other fullscreen events that don't change membership —
+          -- those used to call update_fullscreen_mode() and re-enable remaps while away.
         end
 
         hl.on("window.fullscreen", handle_fullscreen)
@@ -553,19 +560,13 @@ in
           if fullscreen_windows[w.address] then
             fullscreen_windows[w.address] = nil
             prev_ws[w.address] = nil
-            update_fullscreen_mode()
+            -- Closing a fullscreen window does not change the active workspace name.
+            sync_fullscreen_mode(w.workspace and w.workspace.name or "")
           end
         end)
 
-        -- Fallback: sync state when the active workspace changes.
         hl.on("workspace.active", function(ws)
-          if is_fullscreen_ws(ws.name) and count_fullscreen_windows() > 0 then
-            hl.dispatch(hl.dsp.submap("fullscreen"))
-            set_xremap_fullscreen(true)
-          else
-            hl.dispatch(hl.dsp.submap("reset"))
-            set_xremap_fullscreen(false)
-          end
+          sync_fullscreen_mode(ws.name)
         end)
       '';
     };
