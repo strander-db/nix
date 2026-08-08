@@ -376,62 +376,112 @@ in
     settings.bind = [
       {
         _args = [
-          "SUPER + 1"
-          (lib.generators.mkLuaInline "hl.dsp.window.move{workspace = 1, follow = true}")
+          "1"
+          (lib.generators.mkLuaInline ''
+            function()
+              hl.dispatch(hl.dsp.window.move{workspace = 1, follow = true})
+              hl.dispatch(hl.dsp.submap("reset"))
+            end
+          '')
         ];
       }
       {
         _args = [
-          "SUPER + 2"
-          (lib.generators.mkLuaInline "hl.dsp.window.move{workspace = 2, follow = true}")
+          "2"
+          (lib.generators.mkLuaInline ''
+            function()
+              hl.dispatch(hl.dsp.window.move{workspace = 2, follow = true})
+              hl.dispatch(hl.dsp.submap("reset"))
+            end
+          '')
         ];
       }
       {
         _args = [
-          "SUPER + 3"
-          (lib.generators.mkLuaInline "hl.dsp.window.move{workspace = 3, follow = true}")
+          "3"
+          (lib.generators.mkLuaInline ''
+            function()
+              hl.dispatch(hl.dsp.window.move{workspace = 3, follow = true})
+              hl.dispatch(hl.dsp.submap("reset"))
+            end
+          '')
         ];
       }
       {
         _args = [
-          "SUPER + 4"
-          (lib.generators.mkLuaInline "hl.dsp.window.move{workspace = 4, follow = true}")
+          "4"
+          (lib.generators.mkLuaInline ''
+            function()
+              hl.dispatch(hl.dsp.window.move{workspace = 4, follow = true})
+              hl.dispatch(hl.dsp.submap("reset"))
+            end
+          '')
         ];
       }
       {
         _args = [
-          "SUPER + h"
-          (lib.generators.mkLuaInline "hl.dsp.window.swap{direction = \"l\"}")
+          "h"
+          (lib.generators.mkLuaInline ''
+            function()
+              hl.dispatch(hl.dsp.window.swap{direction = "l"})
+              hl.dispatch(hl.dsp.submap("reset"))
+            end
+          '')
         ];
       }
       {
         _args = [
-          "SUPER + j"
-          (lib.generators.mkLuaInline "hl.dsp.window.swap{direction = \"d\"}")
+          "j"
+          (lib.generators.mkLuaInline ''
+            function()
+              hl.dispatch(hl.dsp.window.swap{direction = "d"})
+              hl.dispatch(hl.dsp.submap("reset"))
+            end
+          '')
         ];
       }
       {
         _args = [
-          "SUPER + k"
-          (lib.generators.mkLuaInline "hl.dsp.window.swap{direction = \"u\"}")
+          "k"
+          (lib.generators.mkLuaInline ''
+            function()
+              hl.dispatch(hl.dsp.window.swap{direction = "u"})
+              hl.dispatch(hl.dsp.submap("reset"))
+            end
+          '')
         ];
       }
       {
         _args = [
-          "SUPER + l"
-          (lib.generators.mkLuaInline "hl.dsp.window.swap{direction = \"r\"}")
+          "l"
+          (lib.generators.mkLuaInline ''
+            function()
+              hl.dispatch(hl.dsp.window.swap{direction = "r"})
+              hl.dispatch(hl.dsp.submap("reset"))
+            end
+          '')
         ];
       }
       {
         _args = [
-          "SUPER + CTRL + RIGHT"
-          (lib.generators.mkLuaInline "hl.dsp.window.move{workspace = \"e+1\", follow = true, on_current_monitor = true}")
+          "RIGHT"
+          (lib.generators.mkLuaInline ''
+            function()
+              hl.dispatch(hl.dsp.window.move{workspace = "e+1", follow = true, on_current_monitor = true})
+              hl.dispatch(hl.dsp.submap("reset"))
+            end
+          '')
         ];
       }
       {
         _args = [
-          "SUPER + CTRL + LEFT"
-          (lib.generators.mkLuaInline "hl.dsp.window.move{workspace = \"e-1\", follow = true, on_current_monitor = true}")
+          "LEFT"
+          (lib.generators.mkLuaInline ''
+            function()
+              hl.dispatch(hl.dsp.window.move{workspace = "e-1", follow = true, on_current_monitor = true})
+              hl.dispatch(hl.dsp.submap("reset"))
+            end
+          '')
         ];
       }
       {

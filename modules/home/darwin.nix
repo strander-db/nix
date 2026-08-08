@@ -47,25 +47,25 @@
 
       cmd - m ; move
 
-      move < cmd - 1 : yabai -m window --space 1
+      move < 1 : id=$(yabai -m query --windows --window | ${pkgs.jq}/bin/jq -r .id); yabai -m window --space 1; yabai -m window --focus "$id" ; default
 
-      move < cmd - 2 : yabai -m window --space 2
+      move < 2 : id=$(yabai -m query --windows --window | ${pkgs.jq}/bin/jq -r .id); yabai -m window --space 2; yabai -m window --focus "$id" ; default
 
-      move < cmd - 3 : yabai -m window --space 3
+      move < 3 : id=$(yabai -m query --windows --window | ${pkgs.jq}/bin/jq -r .id); yabai -m window --space 3; yabai -m window --focus "$id" ; default
 
-      move < cmd - 4 : yabai -m window --space 4
+      move < 4 : id=$(yabai -m query --windows --window | ${pkgs.jq}/bin/jq -r .id); yabai -m window --space 4; yabai -m window --focus "$id" ; default
 
-      move < cmd - h : yabai -m window --warp west
+      move < h : yabai -m window --swap west ; default
 
-      move < cmd - j : yabai -m window --warp south
+      move < j : yabai -m window --swap south ; default
 
-      move < cmd - k : yabai -m window --warp north
+      move < k : yabai -m window --swap north ; default
 
-      move < cmd - l : yabai -m window --warp east
+      move < l : yabai -m window --swap east ; default
 
-      move < ctrl - right : yabai -m window --space next
+      move < right : id=$(yabai -m query --windows --window | ${pkgs.jq}/bin/jq -r .id); yabai -m window --space next; yabai -m window --focus "$id" ; default
 
-      move < ctrl - left : yabai -m window --space prev
+      move < left : id=$(yabai -m query --windows --window | ${pkgs.jq}/bin/jq -r .id); yabai -m window --space prev; yabai -m window --focus "$id" ; default
 
       move < escape ; default
 
