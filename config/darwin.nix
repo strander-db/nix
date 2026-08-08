@@ -7,6 +7,10 @@
 }:
 let
   yabai-indicator = pkgs.callPackage ../pkgs/yabai-indicator.nix { };
+  spotlight-exclusions = pkgs.writeShellApplication {
+    name = "spotlight-exclusions";
+    text = builtins.readFile ../modules/darwin/spotlight-exclusions.sh;
+  };
 in
 {
 
@@ -108,6 +112,15 @@ in
     enableKeyMapping = true;
     remapCapsLockToEscape = true;
   };
+
+  # Privacy-exclude non-app paths so Spotlight mainly indexes Applications
+  # (including ~/Applications / Home Manager Apps). Breaks Vicinae file search.
+  # Programmatic Privacy-list updates can be imperfect; reboot or toggle Privacy if needed.
+  system.activationScripts.spotlightExclusions.text = ''
+    echo "restricting Spotlight indexing to Applications..."
+    ${spotlight-exclusions}/bin/spotlight-exclusions ${homeDirectory} || true
+  '';
+
   launchd.user.agents = {
     yabai-indicator = {
       serviceConfig = {
