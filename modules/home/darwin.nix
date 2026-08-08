@@ -1,4 +1,6 @@
 {
+  config,
+  lib,
   pkgs,
   username,
   yabai-indicator,
@@ -72,4 +74,17 @@
       move < cmd - m ; default
     '';
   };
+
+  # HM packs clean.extraArgs as one argv on Darwin launchd; split so clap sees real flags.
+  launchd.agents.nh-clean.config.ProgramArguments = lib.mkForce [
+    (lib.getExe config.programs.nh.package)
+    "clean"
+    "user"
+    "--keep-since"
+    "30d"
+    "--keep"
+    "3"
+    "--keep-one"
+    "--optimise"
+  ];
 }

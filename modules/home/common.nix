@@ -253,7 +253,9 @@ in
   programs.nh = {
     enable = true;
     clean.enable = true;
-    clean.extraArgs = "--keep-since 30d --keep 3";
+    # keep-one: retain latest nix-direnv GC root per develop flake project
+    # optimise: hardlink identical store files after GC
+    clean.extraArgs = "--keep-since 30d --keep 3 --keep-one --optimise";
     flake = "${homeDirectory}/.config/nix";
   };
 }
