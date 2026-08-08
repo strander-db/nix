@@ -17,6 +17,9 @@
 
     xremap-flake.url = "github:xremap/nix-flake";
     xremap-flake.inputs.nixpkgs.follows = "nixpkgs";
+
+    # Do not set inputs.nixpkgs.follows — that breaks the Cachix binary cache.
+    vicinae.url = "github:vicinaehq/vicinae";
   };
 
   outputs =
@@ -29,6 +32,7 @@
       catppuccin,
       nmrs-gui,
       xremap-flake,
+      vicinae,
       ...
     }:
     let
@@ -75,6 +79,7 @@
             ];
           }
           {
+            home-manager.sharedModules = [ vicinae.homeManagerModules.default ];
             home-manager.extraSpecialArgs = {
               hostname = mbProHostname;
               homeDirectory = darwinHomeDirectory;
@@ -109,6 +114,7 @@
             services.display-switch.enable = true;
           }
           {
+            home-manager.sharedModules = [ vicinae.homeManagerModules.default ];
             home-manager.extraSpecialArgs = {
               homeDirectory = nixosHomeDirectory;
               hostname = dimaPCHostname;

@@ -37,6 +37,18 @@ in
 
   programs.home-manager.enable = true;
 
+  programs.vicinae = {
+    enable = true;
+    systemd = {
+      enable = pkgs.stdenv.isLinux;
+      autoStart = true;
+    };
+    launchd = {
+      enable = pkgs.stdenv.isDarwin;
+      autoStart = true;
+    };
+  };
+
   xdg.enable = true;
 
   home.packages = with pkgs; [

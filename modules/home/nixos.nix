@@ -130,7 +130,6 @@ in
   ];
 
   home.packages = with pkgs; [
-    hyprlauncher
     steam
     dunst
     networkmanagerapplet
@@ -290,7 +289,7 @@ in
       {
         _args = [
           "SUPER + SPACE"
-          (lib.generators.mkLuaInline "hl.dsp.exec_cmd(\"hyprlauncher\")")
+          (lib.generators.mkLuaInline "hl.dsp.exec_cmd(\"vicinae toggle\")")
         ];
       }
       {
@@ -709,9 +708,6 @@ in
     ];
   };
 
-  services.hyprlauncher = {
-    enable = true;
-  };
   services.dunst = {
     enable = true;
     settings = {

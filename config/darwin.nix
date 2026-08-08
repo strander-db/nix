@@ -86,9 +86,16 @@ in
       "com.apple.mouse.scaling" = -1.0;
     };
     CustomUserPreferences = {
-      "com.apple.symbolicHotKeys" = {
-        AppleSymbolicHotkeys = {
-
+      "com.apple.symbolichotkeys" = {
+        AppleSymbolicHotKeys = {
+          # Disable Cmd+Space for Spotlight Search
+          "64" = {
+            enabled = false;
+          };
+          # Disable Cmd+Alt+Space for Finder search window
+          "65" = {
+            enabled = false;
+          };
         };
       };
     };

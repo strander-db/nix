@@ -11,6 +11,8 @@
   services.skhd = {
     enable = true;
     config = ''
+      cmd - space : /etc/profiles/per-user/${username}/bin/vicinae toggle
+
       cmd - return : open -n -a "/Users/${username}/Applications/Home Manager Apps/kitty.app"
 
       cmd + shift - return : open -na "/Users/${username}/Applications/Home Manager Apps/Google Chrome.app" --args --new-window
