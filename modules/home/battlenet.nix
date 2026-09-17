@@ -1,5 +1,4 @@
 {
-  config,
   lib,
   pkgs,
   homeDirectory,
@@ -50,15 +49,11 @@ let
 
 in
 {
-  home.packages = [ battlenet-launch wow-gamescope pkgs.umu-launcher pkgs.gamescope ];
-
-  wayland.windowManager.hyprland.settings.bind = [
-    {
-      _args = [
-        "CTRL + SUPER + B"
-        (lib.generators.mkLuaInline "hl.dsp.focus{workspace = \"name:battlenet\"}")
-      ];
-    }
+  home.packages = [
+    battlenet-launch
+    wow-gamescope
+    pkgs.umu-launcher
+    pkgs.gamescope
   ];
 
   xdg.desktopEntries.battlenet = {

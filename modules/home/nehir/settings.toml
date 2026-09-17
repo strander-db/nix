@@ -1,0 +1,44 @@
+# Managed by Home Manager. Nehir also writes runtime tweaks; keep layout keys here.
+
+[appearance]
+mode = "dark"
+
+[borders]
+enabled = false
+width = 5.0
+
+[focus]
+followsMouse = false
+followsWindowToMonitor = false
+moveMouseToFocusedWindow = false
+
+[gaps]
+size = 16.0
+
+[general]
+hotkeysEnabled = true
+ipcEnabled = true
+
+[gestures]
+fingerCount = 3
+invertDirection = true
+mouseResizeModifierKey = "option"
+scrollEnabled = true
+scrollModifierKey = "optionShift"
+scrollSensitivity = 5.0
+
+[niri]
+# Fit two columns on screen; further columns scroll off (Niri model).
+balancedColumnCount = 2
+columnWidthPresets = [0.5, 0.65, 0.35]
+infiniteLoop = false
+revealPartial = "default"
+# Solo window fills the monitor instead of sitting half-width centered.
+loneWindowPolicy = "fill"
+
+[workspaceBar]
+enabled = true
+hideEmptyWorkspaces = true
+notchAware = true
+position = "overlappingMenuBar"
+reserveLayoutSpace = false

@@ -9,7 +9,6 @@
 {
   imports = [
     home-manager.nixosModules.default
-    # catppuccin.nixosModules.catppuccin
   ];
   nixpkgs.hostPlatform = "x86_64-linux";
   system.stateVersion = "26.11";
@@ -20,22 +19,19 @@
     config.credential.helper = "libsecret";
   };
   environment.systemPackages = with pkgs; [
-    hyprpolkitagent
+    xwayland-satellite
     libsecret
   ];
   security.polkit.enable = true;
 
   time.timeZone = "Europe/Kyiv";
-  # Use the systemd-boot EFI boot loader.
   boot.loader.systemd-boot.enable = true;
   boot.loader.efi.canTouchEfiVariables = true;
 
-  # Use latest kernel.
   boot.kernelPackages = pkgs.linuxPackages_latest;
 
-  networking.hostName = hostname; # Define your hostname.
+  networking.hostName = hostname;
 
-  # Configure network connections interactively with nmcli or nmtui.
   networking.networkmanager.enable = true;
 
   nixpkgs.config.allowUnfree = true;
@@ -74,10 +70,7 @@
   users.groups.input.members = [ username ];
   users.groups.uinput.members = [ username ];
 
-  programs.hyprland = {
-    enable = true;
-    withUWSM = true;
-  };
+  programs.niri.enable = true;
 
   programs.steam = {
     enable = true;
@@ -91,11 +84,6 @@
 
   qt.platformTheme = "qt5ct";
 
-  # catppuccin = {
-  #   enable = true;
-  #   autoEnable = true;
-  # };
-
   programs.appimage.enable = true;
   programs.appimage.binfmt = true;
   programs.appimage.package = pkgs.appimage-run.override {
@@ -103,7 +91,6 @@
       pkgs.icu
       pkgs.libxcrypt-legacy
       pkgs.python312
-      # pkgs.python312Packages.torch
     ];
   };
 }

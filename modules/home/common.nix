@@ -63,11 +63,12 @@ in
     direnv
     nix-direnv
     home-manager
+    # Required for Cursor MCP servers that spawn `npx` (Azure, Azure DevOps, etc.)
+    nodejs
     google-chrome
     code-cursor
     cursor-cli
     chatgpt-cli
-    ayugram-desktop
     discord
     fishPlugins.tide
     fishPlugins.done
@@ -75,7 +76,6 @@ in
     fishPlugins.puffer
     fastfetch
     ttyper
-    kitty
     emoji-picker
     tuxguitar
   ];
@@ -223,33 +223,6 @@ in
       };
   };
 
-  programs.kitty = {
-    enable = true;
-    shellIntegration.enableFishIntegration = true;
-    enableGitIntegration = true;
-    themeFile = "Catppuccin-Mocha";
-    font = {
-      name = "MesloLGM Nerd Font";
-      size = 14;
-    };
-    settings = {
-      shell = "${pkgs.fish}/bin/fish --login --interactive";
-      enabled_layouts = "splits,stack";
-      macos_option_as_alt = "yes";
-    };
-    keybindings = {
-      "cmd+d" = "launch --location=split --cwd=current";
-      "cmd+w" = "close_window";
-      "ctrl+h" = "neighboring_window left";
-      "ctrl+j" = "neighboring_window down";
-      "ctrl+k" = "neighboring_window up";
-      "ctrl+l" = "neighboring_window right";
-      "cmd+c" = "copy_to_clipboard";
-      "cmd+v" = "paste_from_clipboard";
-      "cmd+\\" = "next_layout";
-      "cmd+t" = "new_tab";
-    };
-  };
   programs.nh = {
     enable = true;
     clean.enable = true;

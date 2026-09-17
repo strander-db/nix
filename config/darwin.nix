@@ -6,7 +6,8 @@
   ...
 }:
 let
-  yabai-indicator = pkgs.callPackage ../pkgs/yabai-indicator.nix { };
+  nehir = pkgs.callPackage ../pkgs/nehir.nix { };
+  telegram-mac = pkgs.callPackage ../pkgs/telegram-mac.nix { };
   spotlight-exclusions = pkgs.writeShellApplication {
     name = "spotlight-exclusions";
     text = builtins.readFile ../modules/darwin/spotlight-exclusions.sh;
@@ -15,9 +16,13 @@ in
 {
 
   environment.systemPackages = with pkgs; [
-    yabai
     skhd
   ];
+
+  # mac-app-util's SBCL trampoline sync OOMs mid-activation ("failed to allocate
+  # ... at 0x300100000") and aborts before Home Manager runs — leaving skhd/hotkeys
+  # stale after `nh darwin switch`. Apps still land in ~/Applications via HM copyApps.
+  services.mac-app-util.enable = false;
 
   system.configurationRevision = self.rev or self.dirtyRev or null;
 
@@ -26,27 +31,6 @@ in
   nixpkgs.hostPlatform = "aarch64-darwin";
 
   users.users.${username}.home = homeDirectory;
-
-  services.yabai = {
-    enable = true;
-    config = {
-      layout = "bsp";
-    };
-    extraConfig = ''
-      yabai -m config external_bar all:$(spacebar -m config height):0
-      yabai -m signal --add event=mission_control_exit action='echo "refresh" | nc -U /tmp/yabai-indicator.socket'
-      yabai -m signal --add event=display_added action='echo "refresh" | nc -U /tmp/yabai-indicator.socket'
-      yabai -m signal --add event=display_removed action='echo "refresh" | nc -U /tmp/yabai-indicator.socket'
-
-      yabai -m signal --add event=window_created action='echo "refresh windows" | nc -U /tmp/yabai-indicator.socket'
-      yabai -m signal --add event=window_destroyed action='echo "refresh windows" | nc -U /tmp/yabai-indicator.socket'
-      yabai -m signal --add event=window_focused action='echo "refresh windows" | nc -U /tmp/yabai-indicator.socket'
-      yabai -m signal --add event=window_moved action='echo "refresh windows" | nc -U /tmp/yabai-indicator.socket'
-      yabai -m signal --add event=window_resized action='echo "refresh windows" | nc -U /tmp/yabai-indicator.socket'
-      yabai -m signal --add event=window_minimized action='echo "refresh windows" | nc -U /tmp/yabai-indicator.socket'
-      yabai -m signal --add event=window_deminimized action='echo "refresh windows" | nc -U /tmp/yabai-indicator.socket'
-    '';
-  };
 
   environment.variables = {
     NH_DARWIN_FLAKE = "${homeDirectory}/.config/nix";
@@ -65,10 +49,10 @@ in
           app = "/Users/${username}/Applications/Home Manager Apps/Google Chrome.app";
         }
         {
-          app = "/Users/${username}/Applications/Home Manager Apps/AyuGram.app";
+          app = "/Users/${username}/Applications/Home Manager Apps/Telegram.app";
         }
         {
-          app = "/Users/${username}/Applications/Home Manager Apps/kitty.app";
+          app = "/Users/${username}/Applications/Ghostty.app";
         }
         {
           app = "/Users/${username}/Applications/Home Manager Apps/ChatGPT.app";
@@ -89,16 +73,21 @@ in
     ".GlobalPreferences" = {
       "com.apple.mouse.scaling" = -1.0;
     };
+    # Explicitly re-enable Spotlight (Cmd+Space). Removing a prior
+    # `enabled = false` from nix-darwin does not restore the macOS default.
+    # Remap Hide/Minimize off bare Cmd+H/M so skhd can own Cmd+HJKL for Nehir.
     CustomUserPreferences = {
+      NSGlobalDomain = {
+        NSUserKeyEquivalents = {
+          Hide = "@~h";
+          "Hide Others" = "@~^h";
+          Minimize = "@~m";
+        };
+      };
       "com.apple.symbolichotkeys" = {
         AppleSymbolicHotKeys = {
-          # Disable Cmd+Space for Spotlight Search
           "64" = {
-            enabled = false;
-          };
-          # Disable Cmd+Alt+Space for Finder search window
-          "65" = {
-            enabled = false;
+            enabled = true;
           };
         };
       };
@@ -114,28 +103,28 @@ in
   };
 
   # Privacy-exclude non-app paths so Spotlight mainly indexes Applications
-  # (including ~/Applications / Home Manager Apps). Breaks Vicinae file search.
-  # Programmatic Privacy-list updates can be imperfect; reboot or toggle Privacy if needed.
+  # (including ~/Applications / Home Manager Apps).
   system.activationScripts.spotlightExclusions.text = ''
     echo "restricting Spotlight indexing to Applications..."
     ${spotlight-exclusions}/bin/spotlight-exclusions ${homeDirectory} || true
   '';
 
   launchd.user.agents = {
-    yabai-indicator = {
+    nehir = {
       serviceConfig = {
+        # `open <path.app>` (not `open -a`), and no embedded quotes in the argv.
         ProgramArguments = [
           "/usr/bin/open"
-          "-a"
-          ''"${yabai-indicator}/Applications/Home Manager Apps/YabaiIndicator.app"''
+          "${nehir}/Applications/Nehir.app"
         ];
         RunAtLoad = true;
         KeepAlive = false;
       };
     };
   };
+
   home-manager.extraSpecialArgs = {
-    inherit yabai-indicator;
+    inherit nehir telegram-mac;
   };
   home-manager.users.${username}.imports = [
     ../modules/home/common.nix

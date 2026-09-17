@@ -15,9 +15,6 @@
     nmrs-gui.url = "github:networkmanager-rs/nmrs-gui";
     nmrs-gui.inputs.nixpkgs.follows = "nixpkgs";
 
-    xremap-flake.url = "github:xremap/nix-flake";
-    xremap-flake.inputs.nixpkgs.follows = "nixpkgs";
-
     # Do not set inputs.nixpkgs.follows — that breaks the Cachix binary cache.
     vicinae.url = "github:vicinaehq/vicinae";
   };
@@ -31,7 +28,6 @@
       mac-app-util,
       catppuccin,
       nmrs-gui,
-      xremap-flake,
       vicinae,
       ...
     }:
@@ -58,6 +54,10 @@
         in
         {
           display-switch = pkgs.callPackage ./pkgs/display-switch.nix { };
+        }
+        // nixpkgs.lib.optionalAttrs (system == "aarch64-darwin") {
+          nehir = pkgs.callPackage ./pkgs/nehir.nix { };
+          telegram-mac = pkgs.callPackage ./pkgs/telegram-mac.nix { };
         }
       );
       darwinConfigurations.${mbProHostname} = nix-darwin.lib.darwinSystem {
@@ -125,7 +125,6 @@
             home-manager.users.${username}.imports = [
               ./modules/home/common.nix
               ./modules/home/nixos.nix
-              xremap-flake.homeManagerModules.default
             ];
           }
 
