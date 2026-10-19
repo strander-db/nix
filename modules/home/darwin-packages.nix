@@ -4,4 +4,5 @@ with pkgs;
 [
   chatgpt
   unnaturalscrollwheels
+  utm
 ]

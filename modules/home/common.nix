@@ -78,6 +78,7 @@ in
     ttyper
     emoji-picker
     tuxguitar
+    claude-code
   ];
 
   programs.fastfetch = {
